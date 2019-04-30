@@ -32,7 +32,11 @@ class RefreshWorker(object):
                     plugin = data.get('plugin')
                     print plugin, action
                     action = plugin_service.get_worker_action_from_plugin(plugin, action)
+                    print action
+                    print data
                     fetched_data = action(**data)
+                    if not fetched_data:
+                        fetched_data = {}
                     if not fetched_data.get('status'):
                         fetched_data['status'] = 'success'
                     self.refresh_queue.respond(fetched_data)
@@ -74,7 +78,7 @@ class Watcher(Thread):
         self.name = self.get_random_name()
         self.refresh_queue = RefreshQueue()
         self.refresh_queue.QUEUE = self.name
-        self.requester = RefreshRequester('refresher_registry')
+        self.requester = RefreshRequester('worker_registry')
         self.requester.block_request({"name": self.name, "action": "register"})
 
     def get_random_name(self):
@@ -91,6 +95,8 @@ class Watcher(Thread):
                 if action == 'install_plugin':
                     plugin_service.install_plugin(data.get('plugin_repo'))
                     self.refresh_queue.respond({'status': 'success'})
+                elif action == 'ping':
+                    self.refresh_queue.respond({"status": "ok"})
             except:
                 traceback.print_exc()
                 self.refresh_queue.respond({'status': 'error'})
