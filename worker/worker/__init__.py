@@ -32,8 +32,6 @@ class RefreshWorker(object):
                     plugin = data.get('plugin')
                     print plugin, action
                     action = plugin_service.get_worker_action_from_plugin(plugin, action)
-                    print action
-                    print data
                     fetched_data = action(**data)
                     if not fetched_data:
                         fetched_data = {}
