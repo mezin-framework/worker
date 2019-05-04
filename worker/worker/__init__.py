@@ -25,19 +25,15 @@ class RefreshWorker(object):
                 data = self.refresh_queue.get_new_payload()
                 self.working = True
                 action = data.get('action')
-                if action == 'install_plugin':
-                    Thread(target=plugin_service.install_plugin, args=(data.get('plugin_repo'),)).start()
-                    self.refresh_queue.respond({'status': 'success'})
-                else:
-                    plugin = data.get('plugin')
-                    print plugin, action
-                    action = plugin_service.get_worker_action_from_plugin(plugin, action)
-                    fetched_data = action(**data)
-                    if not fetched_data:
-                        fetched_data = {}
-                    if not fetched_data.get('status'):
-                        fetched_data['status'] = 'success'
-                    self.refresh_queue.respond(fetched_data)
+                plugin = data.get('plugin')
+                print plugin, action
+                action = plugin_service.get_worker_action_from_plugin(plugin, action)
+                fetched_data = action(**data)
+                if not fetched_data:
+                    fetched_data = {}
+                if not fetched_data.get('status'):
+                    fetched_data['status'] = 'success'
+                self.refresh_queue.respond(fetched_data)
                 self.working = False
             except:
                 traceback.print_exc()
@@ -91,7 +87,7 @@ class Watcher(Thread):
                 data = self.refresh_queue.get_new_payload()
                 action = data.get('action')
                 if action == 'install_plugin':
-                    plugin_service.install_plugin(data.get('plugin_repo'))
+                    Thread(target=plugin_service.install_plugin, args=(data.get('plugin_repo'),)).start()
                     self.refresh_queue.respond({'status': 'success'})
                 elif action == 'ping':
                     self.refresh_queue.respond({"status": "ok"})
