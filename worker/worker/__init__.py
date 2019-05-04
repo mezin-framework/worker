@@ -74,7 +74,7 @@ class Watcher(Thread):
         self.refresh_queue = RefreshQueue()
         self.refresh_queue.QUEUE = self.name
         self.requester = RefreshRequester('worker_registry')
-        Thread(target=self.ask_register, args=(self,)).start()
+        Thread(target=self.ask_register).start()
 
     def ask_register(self):
         while True:
