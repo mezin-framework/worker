@@ -1,5 +1,6 @@
 import traceback
 import json
+from time import sleep
 from redis import Redis
 from threading import Thread
 from hashlib import sha256
@@ -73,8 +74,16 @@ class Watcher(Thread):
         self.refresh_queue = RefreshQueue()
         self.refresh_queue.QUEUE = self.name
         self.requester = RefreshRequester('worker_registry')
-        self.requester.block_request({"name": self.name, "action": "register"})
+        self.ask_register()
 
+    def ask_register(self):
+        while True:
+            try:
+                self.requester.block_request({"name": self.name, "action": "register"})
+                sleep(60)
+            except:
+                continue
+        
     def get_random_name(self):
         h = sha256()
         h.update(str(datetime.now()).encode('utf-8'))
