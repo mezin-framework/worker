@@ -26,7 +26,7 @@ class RefreshWorker(object):
                 self.working = True
                 action = data.get('action')
                 if action == 'install_plugin':
-                    Thread(plugin_service.install_plugin, args=(data.get('plugin_repo'),))
+                    Thread(plugin_service.install_plugin, args=(data.get('plugin_repo'),)).start()
                     self.refresh_queue.respond({'status': 'success'})
                 else:
                     plugin = data.get('plugin')
